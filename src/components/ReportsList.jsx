@@ -22,11 +22,12 @@ const useStyles = makeStyles({
 
 const ReportsList = ({ date }) => {
   const classes = useStyles();
+  const [reportList, setReportList] = useState([]);
   const [rows, setRows] = useState([]);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
   const [viewDetails, setViewDetails] = useState(false);
-
+  const [selectedRow, setSelectedRow] = useState({});
   const fetchReportsList = () => {
     const formatedDate = date.format("YYYY-MM-DDT00:00:00.000");
     console.log(formatedDate, "2014-01-21T00:00:00.000");
@@ -35,6 +36,7 @@ const ReportsList = ({ date }) => {
     )
       .then((response) => response.json())
       .then((data) => {
+        setReportList(data);
         setRows(formatDataToTableRows(data));
       });
   };
@@ -55,6 +57,11 @@ const ReportsList = ({ date }) => {
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
+  };
+
+  const selectRowHandler = (index) => {
+    setSelectedRow(reportList[index]);
+    setViewDetails(true);
   };
 
   useEffect(() => {
@@ -81,8 +88,8 @@ const ReportsList = ({ date }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((row) => (
-              <TableRow key={row.id}>
+            {rows.map((row, index) => (
+              <TableRow key={row.id} onClick={() => selectRowHandler(index)}>
                 <TableCell>{row.vehicleCode1}</TableCell>
                 <TableCell>{row.vehicleCode2}</TableCell>
                 <TableCell align="right">{row.crashDate}</TableCell>
@@ -106,6 +113,7 @@ const ReportsList = ({ date }) => {
           setViewDetails(false);
         }}
         open={viewDetails}
+        row={selectedRow}
       />
     </>
   );
